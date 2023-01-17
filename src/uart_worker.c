@@ -13,54 +13,62 @@ typedef struct UartWorker {
     Callback callback; 
 } UartWorker;
 
+// bits for uart stx received, data buffer and etx received
+volatile uint8_t stx = 0;
+volatile uint8_t uart_data[64];
+volatile uint8_t uart_data_index = 0;
+
+
 void uart_worker(UartWorker worker) {
-    int c = uart_getc();
+      // read uart input
+    unsigned int input = uart_getc();
+    // get lower byte from input as data and higher byte as status
+    uint8_t data = input & 0xFF;
 
-    if ( c & UART_NO_DATA ) {
-
+    if (input == UART_NO_DATA) {
+        return;
     }
-    else {
-        if ( c & UART_FRAME_ERROR ) {
-            uart_puts_P("UART FRAME ERROR");
+    if (stx == 0) {
+        if (data == 50) {
+            stx = 1;
+            // clear data buffer
+            memset(uart_data, 0, sizeof(uart_data));
+            uart_data_index = 0;
         }
-        if ( c & UART_OVERRUN_ERROR ) {
-            uart_puts_P("UART OVERRUN ERROR");
+    } else {
+        if (data == 51) {
+            stx = 0;
+            // handle data
+            if (uart_data[0] == 'q') {
+                transmit_off();
+            } else {
+                if (bit_is_clear(status, TRANSMIT_ON)) {
+                    transmit_on();
+                }
+            }
+            switch (uart_data[0]) {
+                case 'q':
+                    transmit_off();
+                    break;
+                case 'a':
+                    transmitSensors = ALL;
+                    break;
+                case 's':
+                    transmitSensors = SWITCH;
+                    break;
+                case 'l':
+                    transmitSensors = PHOTO_RESISTOR;
+                    break;
+                default:
+                    break;
+            }
+            memset(uart_data, 0, sizeof(uart_data));
+            uart_data_index = 0;
+        } else {
+            uart_data[uart_data_index] = data;
+            uart_data_index++;
         }
-        if ( c & UART_BUFFER_OVERFLOW ) {
-            uart_puts_P("UART BUFFER OVERFLOW");
-        }
-        // char * buffer;
-        // lcd_clrscr();
-        // int d = c;
-        // sprintf(buffer, "%d", c);
-        // lcd_puts(c);
-        worker.callback((char)c);
     }
-}
-
-static char * _float_to_char(float x, char *p) {
-    char *s = p + CHAR_BUFF_SIZE; // go to end of buffer
-    uint16_t decimals;  // variable to store the decimals
-    int units;  // variable to store the units (part to left of decimal place)
-    if (x < 0) { // take care of negative numbers
-        decimals = (int)(x * -100) % 100; // make 1000 for 3 decimals etc.
-        units = (int)(-1 * x);
-    } else { // positive numbers
-        decimals = (int)(x * 100) % 100;
-        units = (int)x;
-    }
-
-    *--s = (decimals % 10) + '0';
-    decimals /= 10; // repeat for as many decimal places as you need
-    *--s = (decimals % 10) + '0';
-    *--s = '.';
-
-    while (units > 0) {
-        *--s = (units % 10) + '0';
-        units /= 10;
-    }
-    if (x < 0) *--s = '-'; // unary minus sign for negative numbers
-    return s;
 }
 
 void UartHandler(char c) {

@@ -12,7 +12,7 @@ eEepromStatus ReadEepromData(EepromData *data) {
 }
 
 eEepromStatus WriteEepromData(EepromData *data) {
-    (*data).Checksum = crc_8(&data, sizeof(data) - 1);
+    (*data).CRC = crc_8(&data, sizeof(data) - 1);
 
     if(crc_8(&data, sizeof(data)) == 0){
         return CHECK_SUCCESS;

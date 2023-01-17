@@ -44,7 +44,7 @@ void ButtonOne() {
 }
 
 void ButtonTwo() {
-    data.Data = rand();
+    data. = rand();
     eEepromStatus result = WriteEepromData(&data);
     if(result == CHECK_FAILED)
         PutString(lcd, "CHECK FAILED");
