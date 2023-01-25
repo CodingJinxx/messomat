@@ -1,9 +1,10 @@
 {
     "files.associations": {
-        "*.ejs": "html",
         "*.csc": "c",
+        "*.ejs": "html",
         "lcd.h": "c",
         "client_lcd.h": "c",
-        "delay.h": "c"
+        "delay.h": "c",
+        "stdlib.h": "c"
     }
 }
