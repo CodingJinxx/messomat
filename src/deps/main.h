@@ -1,0 +1,1 @@
+int atmega_setup();

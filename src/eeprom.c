@@ -1,10 +1,11 @@
 #include <avr/eeprom.h>
 #include "eeprom.h"
+#include <checksum.h>
 
 eEepromStatus ReadEepromData(EepromData *data) {
     eeprom_read_block(data, 0, sizeof(EepromData));
     
-    if(crc_8(&data, sizeof(data)) == 0) {
+    if(crc_8(&data->CRC, sizeof(data)) == 0) {
         return CHECK_SUCCESS;
     } else {
         return CHECK_FAILED;

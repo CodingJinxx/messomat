@@ -4,7 +4,7 @@
 #include <avr/interrupt.h>
 #include <uart.h>
 #include "client_lcd.h"
-#include "button.h"
+#include "custom_button.h"
 
 #ifndef F_CPU
 #error "F_CPU undefined, please define CPU frequency in Hz in Makefile"

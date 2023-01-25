@@ -4,10 +4,9 @@
 #include <stdio.h>
 #include <util/delay.h>
 #include <avr/eeprom.h>
-#include <checksum.h>
 #include "adc_access.h"
 #include "eeprom.h"
-//#define USE_SIMPLE
+#define USE_SIMPLE
 
 #ifdef USE_SIMPLE 
 static uint16_t data = 19;
@@ -44,7 +43,6 @@ void ButtonOne() {
 }
 
 void ButtonTwo() {
-    data. = rand();
     eEepromStatus result = WriteEepromData(&data);
     if(result == CHECK_FAILED)
         PutString(lcd, "CHECK FAILED");
@@ -55,18 +53,18 @@ void ButtonTwo() {
 void ButtonThree() {
     ReadEepromData(&data);
     char tmp[32];
-    itoa(data.Data, tmp, 10);
+    itoa(data.CRC, tmp, 10);
     PutString(lcd, tmp);
 }
 #endif
 
 void processDisplay() {
-    if(data.Data != last_displayed_data.Data) {
-        lcd_clrscr();
-        char tmp[32];
-        itoa(data.Data, tmp, 10);
-        lcd_puts(tmp);
-        last_displayed_data = data;
-    }
+    // if(data.CRC != last_displayed_data.CRC) {
+    //     lcd_clrscr();
+    //     char tmp[32];
+    //     itoa(data.CRC, tmp, 10);
+    //     lcd_puts(tmp);
+    //     last_displayed_data = data;
+    // }
 }
 
